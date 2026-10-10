@@ -26,9 +26,27 @@ class MainActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         var btnCerrarSesion = findViewById<Button>(R.id.btnCerrarSesion)
+        var btnClientes = findViewById<Button>(R.id.btnClientes)
+        var btnProductos = findViewById<Button>(R.id.btnProductos)
+        var btnPedidos = findViewById<Button>(R.id.btnPedidos)
 
         btnCerrarSesion.setOnClickListener {
             cerrarSesion()
+        }
+
+        btnClientes.setOnClickListener {
+            startActivity(Intent(this, Clientes::class.java))
+            finish()
+        }
+
+        btnProductos.setOnClickListener {
+            startActivity(Intent(this, Productos::class.java))
+            finish()
+        }
+
+        btnPedidos.setOnClickListener {
+            startActivity(Intent(this, Pedidos::class.java))
+            finish()
         }
     }
 

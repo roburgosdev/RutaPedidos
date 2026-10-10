@@ -26,35 +26,35 @@
         android:layout_marginTop="157dp"
         android:text="Cerrar sesion"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnPedido" />
+        app:layout_constraintTop_toBottomOf="@+id/btnPedidos" />
 
     <Button
         android:id="@+id/btnClientes"
-        android:layout_width="120dp"
+        android:layout_width="124dp"
         android:layout_height="47dp"
-        android:layout_marginStart="144dp"
+        android:layout_marginStart="140dp"
         android:layout_marginTop="76dp"
         android:text="Clientes"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
     <Button
-        android:id="@+id/btnProducto"
-        android:layout_width="120dp"
+        android:id="@+id/btnProductos"
+        android:layout_width="124dp"
         android:layout_height="47dp"
-        android:layout_marginStart="144dp"
+        android:layout_marginStart="140dp"
         android:layout_marginTop="48dp"
-        android:text="Producto"
+        android:text="Productos"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnClientes" />
 
     <Button
-        android:id="@+id/btnPedido"
-        android:layout_width="120dp"
+        android:id="@+id/btnPedidos"
+        android:layout_width="124dp"
         android:layout_height="47dp"
-        android:layout_marginStart="144dp"
+        android:layout_marginStart="140dp"
         android:layout_marginTop="48dp"
-        android:text="Pedido"
+        android:text="Pedidos"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnProducto" />
+        app:layout_constraintTop_toBottomOf="@+id/btnProductos" />
 </androidx.constraintlayout.widget.ConstraintLayout>
