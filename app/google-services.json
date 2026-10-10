@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "295720656028",
+    "project_id": "rutapedidos-ipvg",
+    "storage_bucket": "rutapedidos-ipvg.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:295720656028:android:a801a110ca512963212159",
+        "android_client_info": {
+          "package_name": "com.example.rutapedidos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQEIKP11Ofs8ZbwtkYH0Lt9BIogXJwqQ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
