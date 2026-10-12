@@ -37,4 +37,16 @@
         android:textSize="24sp"
         app:layout_constraintStart_toEndOf="@+id/btnProductosVolver"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <fragment
+        android:id="@+id/fragProductosLista"
+        android:name="com.example.rutapedidos.Fragments.ListaFragment"
+        android:layout_width="410dp"
+        android:layout_height="630dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="100dp"
+        android:layout_weight="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

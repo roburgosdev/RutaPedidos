@@ -2,16 +2,23 @@ package com.example.rutapedidos
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ListView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.rutapedidos.DataAccessObjects.ClienteDao
 import com.example.rutapedidos.DataAccessObjects.ProductoDao
+import com.example.rutapedidos.Fragments.ListaFragment
+import com.example.rutapedidos.Interfaces.ListadosFragment
+import com.example.rutapedidos.Models.Cliente
+import com.example.rutapedidos.Models.Producto
 import com.example.rutapedidos.SyncServices.ProductoSyncService
 
-class Productos : AppCompatActivity() {
+class Productos : AppCompatActivity(), ListadosFragment {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -37,6 +44,9 @@ class Productos : AppCompatActivity() {
             // Sincronizar productos
             productoSync.sincronizar(
                 onSuccess = { cantidad ->
+                    var fragment = supportFragmentManager.findFragmentById(R.id.fragProductosLista) as? ListaFragment
+                    fragment?.actualizarLista()
+
                     Toast.makeText(
                         this,
                         "$cantidad productos sincronizados",
@@ -52,5 +62,27 @@ class Productos : AppCompatActivity() {
                 }
             )
         }
+    }
+
+    override fun cargaDatos(listView: ListView) {
+        var productoDao = ProductoDao(this)
+        var listado = productoDao.obtenerTodos()
+        var listadoFormateado = formatearSalida(listado)
+
+        var arrayAdapter: ArrayAdapter<*>
+        arrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listadoFormateado)
+        listView.adapter = arrayAdapter
+    }
+
+    fun formatearSalida(productos: List<Producto>) : List<String> {
+        var lista = productos.map { producto ->
+            "ID: ${producto.idProducto}\n" +
+            "Código: ${producto.codigo}\n" +
+            "Nombre: ${producto.nombre}\n" +
+            "Unidad de medida: ${producto.unidadMedida}\n" +
+            "Precio: $${producto.precio}\n" +
+            "Stock: ${producto.idProducto}\n"
+        }
+        return lista
     }
 }
