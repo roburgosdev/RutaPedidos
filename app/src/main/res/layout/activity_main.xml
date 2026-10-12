@@ -7,23 +7,12 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="136dp"
-        android:layout_marginTop="28dp"
-        android:text="RutaPedidos"
-        android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
         android:id="@+id/btnCerrarSesion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="128dp"
-        android:layout_marginTop="156dp"
+        android:layout_marginStart="124dp"
+        android:layout_marginTop="60dp"
         android:text="Cerrar sesión"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnPedidos" />
@@ -33,28 +22,39 @@
         android:layout_width="124dp"
         android:layout_height="47dp"
         android:layout_marginStart="140dp"
-        android:layout_marginTop="76dp"
+        android:layout_marginTop="43dp"
         android:text="Clientes"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-    <Button
-        android:id="@+id/btnProductos"
-        android:layout_width="124dp"
-        android:layout_height="47dp"
-        android:layout_marginStart="140dp"
-        android:layout_marginTop="48dp"
-        android:text="Productos"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnClientes" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
     <Button
         android:id="@+id/btnPedidos"
         android:layout_width="124dp"
         android:layout_height="47dp"
-        android:layout_marginStart="140dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginStart="136dp"
+        android:layout_marginTop="44dp"
         android:text="Pedidos"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnProductos" />
+
+    <Button
+        android:id="@+id/btnProductos"
+        android:layout_width="124dp"
+        android:layout_height="47dp"
+        android:layout_marginStart="136dp"
+        android:layout_marginTop="52dp"
+        android:text="Productos"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnClientes" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginStart="124dp"
+        android:layout_marginTop="50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logo_rutapedidos" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
