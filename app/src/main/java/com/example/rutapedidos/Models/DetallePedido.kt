@@ -1,7 +1,5 @@
 package com.example.rutapedidos.Models
 
-import androidx.resourceinspection.annotation.Attribute
-
 data class DetallePedido(
     var idDetalle: Int,
     var idPedido: Int,

@@ -9,7 +9,7 @@ import com.example.rutapedidos.SQL.miSQLiteHelper
 
 class ClienteDao(context: Context) {
 
-    private val helper = miSQLiteHelper(context.applicationContext)
+    private val helper = miSQLiteHelper.obtener(context)
 
     fun guardarTodos(clientes: List<Cliente>) {
         val db = helper.writableDatabase
@@ -27,12 +27,11 @@ class ClienteDao(context: Context) {
                     put("dia_visita", cliente.diaVisita)
                 }
 
-                db.insertWithOnConflict(
-                    "cliente",
-                    null,
-                    values,
-                    SQLiteDatabase.CONFLICT_REPLACE
-                )
+                val filas = db.update("cliente",values,"id_cliente = ?", arrayOf(cliente.idCliente.toString()))
+
+                if(filas == 0){
+                    db.insertOrThrow("cliente", null, values)
+                }
             }
 
             db.setTransactionSuccessful()
@@ -45,23 +44,21 @@ class ClienteDao(context: Context) {
         var resultado = mutableListOf<Cliente>()
         var db = helper.readableDatabase
 
-
-        var fila = db.rawQuery("SELECT * FROM cliente", null)
-
-        while (fila.moveToNext()) {
-            resultado.add(
-                Cliente(
-                    idCliente = fila.getString(fila.getColumnIndexOrThrow("id_cliente")).toInt(),
-                    rut = fila.getString(fila.getColumnIndexOrThrow("rut")),
-                    razonSocial = fila.getString(fila.getColumnIndexOrThrow("razon_social")),
-                    direccion = fila.getString(fila.getColumnIndexOrThrow("direccion")),
-                    comuna = fila.getString(fila.getColumnIndexOrThrow("comuna")),
-                    telefono = fila.getString(fila.getColumnIndexOrThrow("telefono")),
-                    diaVisita = fila.getString(fila.getColumnIndexOrThrow("dia_visita")),
+        db.rawQuery("SELECT * FROM cliente", null).use{ fila ->
+            while (fila.moveToNext()) {
+                resultado.add(
+                    Cliente(
+                        idCliente = fila.getString(fila.getColumnIndexOrThrow("id_cliente")).toInt(),
+                        rut = fila.getString(fila.getColumnIndexOrThrow("rut")),
+                        razonSocial = fila.getString(fila.getColumnIndexOrThrow("razon_social")),
+                        direccion = fila.getString(fila.getColumnIndexOrThrow("direccion")),
+                        comuna = fila.getString(fila.getColumnIndexOrThrow("comuna")),
+                        telefono = fila.getString(fila.getColumnIndexOrThrow("telefono")),
+                        diaVisita = fila.getString(fila.getColumnIndexOrThrow("dia_visita"))
                     )
-            )
+                )
+            }
         }
-        db.close()
 
         return resultado
     }

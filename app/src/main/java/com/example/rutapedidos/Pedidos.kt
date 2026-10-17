@@ -21,6 +21,13 @@ class Pedidos : AppCompatActivity() {
 
         var btnVolver = findViewById<Button>(R.id.btnPedidosVolver)
 
+        val idUsuario = Sesion.idUsuarioLocal(this)
+        if (idUsuario == null) {
+            startActivity(Intent(this, AuthActivity::class.java))
+            finish()
+            return
+        }
+
         btnVolver.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
             finish()

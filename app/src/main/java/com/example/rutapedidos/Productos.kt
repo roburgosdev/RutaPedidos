@@ -81,7 +81,7 @@ class Productos : AppCompatActivity(), ListadosFragment {
             "Nombre: ${producto.nombre}\n" +
             "Unidad de medida: ${producto.unidadMedida}\n" +
             "Precio: $${producto.precio}\n" +
-            "Stock: ${producto.idProducto}\n"
+            "Stock: ${producto.stock}\n"
         }
         return lista
     }

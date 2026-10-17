@@ -52,6 +52,7 @@ class miSQLiteHelper(context: Context) :
                 id_pedido INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_cliente INTEGER NOT NULL,
                 id_usuario INTEGER NOT NULL,
+                firebase_uid TEXT NOT NULL,
                 fecha_emision TEXT NOT NULL,
                 fecha_entrega TEXT,
                 orden_compra TEXT,
@@ -95,26 +96,35 @@ class miSQLiteHelper(context: Context) :
         newVersion: Int
     ) {
 
-        var usuarioBorrado = "DROP TABLE IF EXISTS usuario"
-        db!!.execSQL(usuarioBorrado)
-        onCreate(db)
+        val detallePedidoBorrado = "DROP TABLE IF EXISTS detalle_pedido"
+        db.execSQL(detallePedidoBorrado)
 
-        var clienteBorrado = "DROP TABLE IF EXISTS cliente"
-        db!!.execSQL(clienteBorrado)
-        onCreate(db)
+        val pedidoBorrado = "DROP TABLE IF EXISTS pedido"
+        db.execSQL(pedidoBorrado)
 
-        var productoBorrado = "DROP TABLE IF EXISTS producto"
-        db!!.execSQL(productoBorrado)
-        onCreate(db)
+        val productoBorrado = "DROP TABLE IF EXISTS producto"
+        db.execSQL(productoBorrado)
 
-        var pedidoBorrado = "DROP TABLE IF EXISTS pedido"
-        db!!.execSQL(pedidoBorrado)
-        onCreate(db)
+        val clienteBorrado = "DROP TABLE IF EXISTS cliente"
+        db.execSQL(clienteBorrado)
 
-        var detallePedidoBorrado = "DROP TABLE IF EXISTS detalle_pedido"
-        db!!.execSQL(detallePedidoBorrado)
+        val usuarioBorrado = "DROP TABLE IF EXISTS usuario"
+        db.execSQL(usuarioBorrado)
+
         onCreate(db)
 
     }
 
+    companion object {
+        @Volatile
+        private var instancia: miSQLiteHelper? = null
+
+        fun obtener(context: Context): miSQLiteHelper {
+            return instancia ?: synchronized(this) {
+                instancia ?: miSQLiteHelper(context.applicationContext).also {
+                    instancia = it
+                }
+            }
+        }
+    }
 }

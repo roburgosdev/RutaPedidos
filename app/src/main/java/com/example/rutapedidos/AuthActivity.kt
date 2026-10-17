@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.rutapedidos.DataAccessObjects.UsuarioDao
 import com.google.firebase.auth.FirebaseAuth
 
 class AuthActivity : AppCompatActivity() {
@@ -17,6 +18,15 @@ class AuthActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        auth = FirebaseAuth.getInstance()
+
+        if (auth.currentUser != null) {
+            Sesion.idUsuarioLocal(this)
+            abrirPantallaPrincipal()
+            return
+        }
+
         enableEdgeToEdge()
         setContentView(R.layout.activity_auth)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -25,8 +35,9 @@ class AuthActivity : AppCompatActivity() {
             insets
         }
 
-        auth = FirebaseAuth.getInstance()
-
+        // CUENTA DEMO PARA REVISION
+        // Usuario: demo@rutapedidos.cl
+        // Contrasena: 123456
         var correo = findViewById<EditText>(R.id.txtCorreo)
         var contrasena = findViewById<EditText>(R.id.txtContrasena)
 
@@ -53,6 +64,7 @@ class AuthActivity : AppCompatActivity() {
                     btnIngresar.isEnabled = true
 
                     if (task.isSuccessful) {
+                        Sesion.idUsuarioLocal(this)
                         abrirPantallaPrincipal()
                     } else {
                         Toast.makeText(

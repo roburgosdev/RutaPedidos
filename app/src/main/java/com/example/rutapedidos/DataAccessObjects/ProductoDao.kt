@@ -8,7 +8,7 @@ import com.example.rutapedidos.SQL.miSQLiteHelper
 
 class ProductoDao(context: Context) {
 
-    private val helper = miSQLiteHelper(context.applicationContext)
+    private val helper = miSQLiteHelper.obtener(context)
 
     fun guardarTodos(productos: List<Producto>) {
         val db = helper.writableDatabase
@@ -25,12 +25,11 @@ class ProductoDao(context: Context) {
                     put("stock", producto.stock)
                 }
 
-                db.insertWithOnConflict(
-                    "producto",
-                    null,
-                    values,
-                    SQLiteDatabase.CONFLICT_REPLACE
-                )
+                val filas = db.update("producto", values, "id_producto = ?", arrayOf(producto.idProducto.toString()))
+
+                if(filas == 0){
+                    db.insertOrThrow("producto", null, values)
+                }
             }
 
             db.setTransactionSuccessful()
@@ -43,22 +42,20 @@ class ProductoDao(context: Context) {
         var resultado = mutableListOf<Producto>()
         var db = helper.readableDatabase
 
-
-        var fila = db.rawQuery("SELECT * FROM producto", null)
-
-        while (fila.moveToNext()) {
-            resultado.add(
-                Producto(
-                    idProducto = fila.getString(fila.getColumnIndexOrThrow("id_producto")).toInt(),
-                    codigo = fila.getString(fila.getColumnIndexOrThrow("codigo")),
-                    nombre = fila.getString(fila.getColumnIndexOrThrow("nombre")),
-                    unidadMedida = fila.getString(fila.getColumnIndexOrThrow("unidad_medida")),
-                    precio = fila.getString(fila.getColumnIndexOrThrow("precio")).toInt(),
-                    stock = fila.getString(fila.getColumnIndexOrThrow("stock")).toInt(),
+        db.rawQuery("SELECT * FROM producto", null).use { fila ->
+            while (fila.moveToNext()) {
+                resultado.add(
+                    Producto(
+                        idProducto = fila.getString(fila.getColumnIndexOrThrow("id_producto")).toInt(),
+                        codigo = fila.getString(fila.getColumnIndexOrThrow("codigo")),
+                        nombre = fila.getString(fila.getColumnIndexOrThrow("nombre")),
+                        unidadMedida = fila.getString(fila.getColumnIndexOrThrow("unidad_medida")),
+                        precio = fila.getString(fila.getColumnIndexOrThrow("precio")).toInt(),
+                        stock = fila.getString(fila.getColumnIndexOrThrow("stock")).toInt()
+                    )
                 )
-            )
+            }
         }
-        db.close()
 
         return resultado
     }
