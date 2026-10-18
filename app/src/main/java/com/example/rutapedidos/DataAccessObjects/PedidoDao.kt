@@ -79,7 +79,7 @@ class PedidoDao(context: Context) {
         val db = helper.writableDatabase
 
         var datos = ContentValues()
-        datos.put("id_pedido", pedido.idPedido)
+        //datos.put("id_pedido", pedido.idPedido)
         datos.put("id_cliente", pedido.idCliente)
         datos.put("id_usuario", pedido.idUsuario)
         datos.put("firebase_uid", pedido.fireBaseUID)

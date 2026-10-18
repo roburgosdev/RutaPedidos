@@ -17,7 +17,7 @@ import com.example.rutapedidos.DataAccessObjects.UsuarioDao
 import com.example.rutapedidos.Models.Cliente
 import com.example.rutapedidos.Models.Pedido
 import java.time.LocalDate
-import java.util.Date
+import java.time.format.DateTimeFormatter
 
 class PedidosCrear : AppCompatActivity() {
     private lateinit var spClientes: Spinner
@@ -75,37 +75,57 @@ class PedidosCrear : AppCompatActivity() {
     }
 
     fun guardar(){
+        try {
+            var item = spClientes.selectedItem.toString()
+            var idCliente = item.split(" - ")[0].toInt()
 
-        var item = spClientes.selectedItem.toString()
-        var splitted = item.split(" - ")
-        var id_cliente = splitted[0].toInt()
-        var id_usuario = Sesion.idUsuarioLocal(this)
-        var usuarioDao = UsuarioDao(this)
-        var usuario = usuarioDao.obtenerPorID(id_usuario!!.toInt())
-        var firebase_uid = usuario!!.fireBaseUID
-        var fecha_emision = LocalDate.now()
-        var fecha_entrega = LocalDate.parse(fechaEntrega.text.toString())
-        var orden_compra = ordenCompra.text.toString()
+            var idUsuario = Sesion.idUsuarioLocal(this)?.toInt()
+                ?: throw Exception("No hay usuario en sesión")
 
-        var pedido = Pedido(
-            idPedido = 1,
-            idCliente = id_cliente,
-            idUsuario = id_usuario.toInt(),
-            fireBaseUID = firebase_uid,
-            fechaEmision = fecha_emision,
-            fechaEntrega = fecha_entrega,
-            ordenCompra = orden_compra,
-            neto = 0,
-            descuento = 0,
-            impuesto = 0,
-            total = 0,
-            estado = "pendiente",
-            sincronizado = false
-        )
+            var usuarioDao = UsuarioDao(this)
+            var usuario = usuarioDao.obtenerPorID(idUsuario)
+                ?: throw Exception("Usuario no encontrado")
 
-        var pedidoDao = PedidoDao(this)
-        pedidoDao.guardarUno(pedido)
-        Toast.makeText(this, "Pedido Creado", Toast.LENGTH_SHORT).show()
+            var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+            var fechaEmision = LocalDate.now()
+            var fechaEntregaPedido = LocalDate.parse(
+                fechaEntrega.text.toString(),
+                formatter
+            )
+
+            var pedido = Pedido(
+                idPedido = 0,
+                idCliente = idCliente,
+                idUsuario = idUsuario,
+                fireBaseUID = usuario.fireBaseUID,
+                fechaEmision = fechaEmision,
+                fechaEntrega = fechaEntregaPedido,
+                ordenCompra = ordenCompra.text.toString(),
+                neto = 0,
+                descuento = 0,
+                impuesto = 0,
+                total = 0,
+                estado = "pendiente",
+                sincronizado = false
+            )
+
+            var pedidoDao = PedidoDao(this)
+            pedidoDao.guardarUno(pedido)
+
+            Toast.makeText(
+                this,
+                "Pedido creado correctamente",
+                Toast.LENGTH_SHORT
+            ).show()
+
+        } catch (e: Exception) {
+            Toast.makeText(
+                this,
+                "Error: ${e.message}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     fun limpiarCampos(){

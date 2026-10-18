@@ -6,9 +6,7 @@ import com.example.rutapedidos.Models.Producto
 import com.example.rutapedidos.SQL.miSQLiteHelper
 
 class ProductoDao(context: Context) {
-
     private val helper = miSQLiteHelper.obtener(context)
-
     fun guardarTodos(productos: List<Producto>) {
         val db = helper.writableDatabase
 

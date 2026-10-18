@@ -25,7 +25,7 @@ class UsuarioDao(context: Context) {
 
     fun obtenerPorID(id: Int): Usuario? {
         var db = helper.readableDatabase
-        db.query("usuario", null, "usuario_id = ?", arrayOf(id.toString()), null, null, null).use { c ->
+        db.query("usuario", null, "id_usuario = ?", arrayOf(id.toString()), null, null, null).use { c ->
             if (!c.moveToFirst()) return null
             return Usuario(
                 idUsuario = c.getInt(c.getColumnIndexOrThrow("id_usuario")),
