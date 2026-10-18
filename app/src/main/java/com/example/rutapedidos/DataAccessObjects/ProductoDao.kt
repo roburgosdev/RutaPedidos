@@ -3,6 +3,7 @@ package com.example.rutapedidos.DataAccessObjects
 import android.content.ContentValues
 import android.content.Context
 import com.example.rutapedidos.Models.Producto
+import com.example.rutapedidos.Models.Usuario
 import com.example.rutapedidos.SQL.miSQLiteHelper
 
 class ProductoDao(context: Context) {
@@ -55,5 +56,20 @@ class ProductoDao(context: Context) {
         }
 
         return resultado
+    }
+
+    fun obtenerPorID(id: Int): Producto? {
+        var db = helper.readableDatabase
+        db.query("producto", null, "id_producto = ?", arrayOf(id.toString()), null, null, null).use { fila ->
+            if (!fila.moveToFirst()) return null
+            return Producto(
+                idProducto = fila.getString(fila.getColumnIndexOrThrow("id_producto")).toInt(),
+                codigo = fila.getString(fila.getColumnIndexOrThrow("codigo")),
+                nombre = fila.getString(fila.getColumnIndexOrThrow("nombre")),
+                unidadMedida = fila.getString(fila.getColumnIndexOrThrow("unidad_medida")),
+                precio = fila.getString(fila.getColumnIndexOrThrow("precio")).toInt(),
+                stock = fila.getString(fila.getColumnIndexOrThrow("stock")).toInt()
+            )
+        }
     }
 }

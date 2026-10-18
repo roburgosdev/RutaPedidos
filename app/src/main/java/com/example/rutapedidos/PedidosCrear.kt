@@ -123,6 +123,7 @@ class PedidosCrear : AppCompatActivity() {
             var intent = Intent(this, PedidosMostrar::class.java)
             intent.putExtra("idPedido", idPedidoCreado)
             startActivity(intent)
+            finish()
 
         } catch (e: Exception) {
             Toast.makeText(
