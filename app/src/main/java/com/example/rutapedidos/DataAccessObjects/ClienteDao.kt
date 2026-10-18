@@ -3,7 +3,6 @@ package com.example.rutapedidos.DataAccessObjects
 
 import android.content.ContentValues
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
 import com.example.rutapedidos.Models.Cliente
 import com.example.rutapedidos.SQL.miSQLiteHelper
 

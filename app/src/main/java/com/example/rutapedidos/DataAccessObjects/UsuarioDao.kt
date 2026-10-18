@@ -23,6 +23,20 @@ class UsuarioDao(context: Context) {
         }
     }
 
+    fun obtenerPorID(id: Int): Usuario? {
+        var db = helper.readableDatabase
+        db.query("usuario", null, "usuario_id = ?", arrayOf(id.toString()), null, null, null).use { c ->
+            if (!c.moveToFirst()) return null
+            return Usuario(
+                idUsuario = c.getInt(c.getColumnIndexOrThrow("id_usuario")),
+                fireBaseUID = c.getString(c.getColumnIndexOrThrow("firebase_uid")),
+                rut = c.getString(c.getColumnIndexOrThrow("rut")) ?: "",
+                nombre = c.getString(c.getColumnIndexOrThrow("nombre")) ?: "",
+                email = c.getString(c.getColumnIndexOrThrow("email"))
+            )
+        }
+    }
+
     fun insertar(uid: String, email: String): Long {
         val values = ContentValues().apply {
             put("firebase_uid", uid)
@@ -35,4 +49,5 @@ class UsuarioDao(context: Context) {
         val existente = obtenerPorUid(uid)
         return existente?.idUsuario?.toLong() ?: insertar(uid, email)
     }
+
 }
