@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import com.example.rutapedidos.Models.Pedido
 import com.example.rutapedidos.Models.Producto
+import com.example.rutapedidos.Models.Usuario
 import com.example.rutapedidos.Pedidos
 import com.example.rutapedidos.SQL.miSQLiteHelper
 import java.time.LocalDate
@@ -67,7 +68,7 @@ class PedidoDao(context: Context) {
                         impuesto = fila.getString(fila.getColumnIndexOrThrow("impuesto")).toInt(),
                         total = fila.getString(fila.getColumnIndexOrThrow("total")).toInt(),
                         estado = fila.getString(fila.getColumnIndexOrThrow("estado")),
-                        sincronizado = fila.getString(fila.getColumnIndexOrThrow("sincronizado")).toBoolean(),
+                        sincronizado = fila.getInt(fila.getColumnIndexOrThrow("sincronizado")) == 1
                     )
                 )
             }
@@ -75,7 +76,7 @@ class PedidoDao(context: Context) {
         return resultado
     }
 
-    fun guardarUno(pedido: Pedido){
+    fun guardarUno(pedido: Pedido): Long{
         val db = helper.writableDatabase
 
         var datos = ContentValues()
@@ -93,7 +94,29 @@ class PedidoDao(context: Context) {
         datos.put("estado", pedido.estado)
         datos.put("sincronizado", if (pedido.sincronizado) 1 else 0)
 
-        db.insertOrThrow("pedido", null, datos)
-        db.close()
+        return db.insertOrThrow("pedido", null, datos)
+    }
+
+    fun obtenerUno(idPedido: Int): Pedido? {
+        var db = helper.readableDatabase
+
+        db.query("pedido", null, "id_pedido = ?", arrayOf(idPedido.toString()), null, null, null).use { c ->
+            if (!c.moveToFirst()) return null
+            return Pedido(
+                idPedido = c.getString(c.getColumnIndexOrThrow("id_pedido")).toInt(),
+                idCliente = c.getString(c.getColumnIndexOrThrow("id_cliente")).toInt(),
+                idUsuario = c.getString(c.getColumnIndexOrThrow("id_usuario")).toInt(),
+                fireBaseUID = c.getString(c.getColumnIndexOrThrow("firebase_uid")),
+                fechaEmision = LocalDate.parse(c.getString(c.getColumnIndexOrThrow("fecha_emision"))),
+                fechaEntrega = LocalDate.parse(c.getString(c.getColumnIndexOrThrow("fecha_entrega"))),
+                ordenCompra = c.getString(c.getColumnIndexOrThrow("orden_compra")),
+                neto = c.getString(c.getColumnIndexOrThrow("neto")).toInt(),
+                descuento = c.getString(c.getColumnIndexOrThrow("descuento")).toInt(),
+                impuesto = c.getString(c.getColumnIndexOrThrow("impuesto")).toInt(),
+                total = c.getString(c.getColumnIndexOrThrow("total")).toInt(),
+                estado = c.getString(c.getColumnIndexOrThrow("estado")),
+                sincronizado = c.getInt(c.getColumnIndexOrThrow("sincronizado")) == 1
+            )
+        }
     }
 }

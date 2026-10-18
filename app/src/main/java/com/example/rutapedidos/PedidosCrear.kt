@@ -111,13 +111,18 @@ class PedidosCrear : AppCompatActivity() {
             )
 
             var pedidoDao = PedidoDao(this)
-            pedidoDao.guardarUno(pedido)
+            var idPedidoCreado = pedidoDao.guardarUno(pedido).toInt()
 
             Toast.makeText(
                 this,
                 "Pedido creado correctamente",
                 Toast.LENGTH_SHORT
             ).show()
+            limpiarCampos()
+
+            var intent = Intent(this, PedidosMostrar::class.java)
+            intent.putExtra("idPedido", idPedidoCreado)
+            startActivity(intent)
 
         } catch (e: Exception) {
             Toast.makeText(
