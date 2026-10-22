@@ -97,15 +97,34 @@ class PedidosAgregarProducto : AppCompatActivity() {
             var productoDao = ProductoDao(this)
             var producto = productoDao.obtenerPorID(idProducto)
 
-            var cantidad = cantidad.text.toString().toInt()
-            var precioUnitario = if (producto != null) producto.precio else 0
-            var porcentajeDescuento = porcentaje_descuento.text.toString().toDouble()
+            var cantidad = cantidad.text.toString().toIntOrNull()
+            if(cantidad == null || cantidad <= 0) {
+                Toast.makeText(this, "Ingrese una cantidad válida", Toast.LENGTH_SHORT).show()
+                return
+            }
+            if(producto == null) {
+                Toast.makeText(this, "Producto no encontrado", Toast.LENGTH_SHORT).show()
+                return
+            }
+            if(cantidad > producto.stock) {
+                Toast.makeText(this, "Stock insuficiente. Disponible: ${producto.stock}", Toast.LENGTH_SHORT).show()
+                return
+            }
 
-            var descuento = (cantidad * precioUnitario * (porcentajeDescuento / 100)).toInt()
-            var neto = cantidad * precioUnitario
+            var precioUnitario = if (producto != null) producto.precio else 0
+
+            var porcentajeDescuento = porcentaje_descuento.text.toString().toDoubleOrNull() ?: 0.0
+            if (porcentajeDescuento !in 0.0..100.0) {
+                Toast.makeText(this, "El descuento debe estar entre 0 y 100", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            var bruto = cantidad * precioUnitario
+            var descuento = Math.round(bruto * porcentajeDescuento / 100).toInt()
+            var neto = bruto - descuento
             var iva = 0.19
-            var impuesto = ((neto - descuento) * iva).toInt()
-            var total = neto - descuento + impuesto
+            var impuesto = Math.round(neto * iva).toInt()
+            var total = neto + impuesto
 
 
             var detallePedido = DetallePedido(
