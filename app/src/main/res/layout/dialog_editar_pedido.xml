@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:labelFor="@id/txtFechaEntrega"
+        android:text="@string/pedido_editar_fecha" />
+
+    <EditText
+        android:id="@+id/txtFechaEntrega"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/pedido_editar_fecha"
+        android:inputType="date" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:labelFor="@id/txtOrdenCompra"
+        android:text="@string/pedido_editar_orden" />
+
+    <EditText
+        android:id="@+id/txtOrdenCompra"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:selectAllOnFocus="true" />
+</LinearLayout>

@@ -60,7 +60,6 @@ class miSQLiteHelper(context: Context) :
                 descuento INTEGER DEFAULT 0,
                 impuesto INTEGER DEFAULT 0,
                 total INTEGER DEFAULT 0,
-                estado TEXT NOT NULL DEFAULT 'pendiente',
                 sincronizado INTEGER NOT NULL DEFAULT 0,
                 FOREIGN KEY (id_cliente)
                     REFERENCES cliente(id_cliente),

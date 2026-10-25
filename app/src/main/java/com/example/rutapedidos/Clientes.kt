@@ -2,7 +2,6 @@ package com.example.rutapedidos
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
 import android.widget.Toast
@@ -13,7 +12,6 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.rutapedidos.DataAccessObjects.ClienteDao
 import com.example.rutapedidos.Fragments.ListaFragment
 import com.example.rutapedidos.Interfaces.ListadosFragment
-import com.example.rutapedidos.Models.Cliente
 import com.example.rutapedidos.SyncServices.ClienteSyncService
 
 
@@ -40,9 +38,15 @@ class Clientes : AppCompatActivity(), ListadosFragment {
             var clienteDao = ClienteDao(this)
             var clienteSync = ClienteSyncService(clienteDao)
 
+            btnSincronizar.isEnabled = false
+            btnSincronizar.setText(R.string.pedidos_sincronizando)
+
             // Sincronizar clientes
             clienteSync.sincronizar(
                 onSuccess = { cantidad ->
+                    btnSincronizar.isEnabled = true
+                    btnSincronizar.setText(R.string.pedidos_sincronizar)
+
                     var fragment = supportFragmentManager.findFragmentById(R.id.fragClientesLista) as? ListaFragment
                     fragment?.actualizarLista()
 
@@ -53,6 +57,9 @@ class Clientes : AppCompatActivity(), ListadosFragment {
                     ).show()
                 },
                 onError = { exception ->
+                    btnSincronizar.isEnabled = true
+                    btnSincronizar.setText(R.string.pedidos_sincronizar)
+
                     Toast.makeText(
                         this,
                         "Error al sincronizar clientes: ${exception.message}",
@@ -65,26 +72,8 @@ class Clientes : AppCompatActivity(), ListadosFragment {
     }
 
     override fun cargaDatos(listView: ListView) {
-        var clienteDao = ClienteDao(this)
-        var listado = clienteDao.obtenerTodos()
-        var listadoFormateado = formatearSalida(listado)
-
-        var arrayAdapter: ArrayAdapter<*>
-        arrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listadoFormateado)
-        listView.adapter = arrayAdapter
-    }
-
-    fun formatearSalida(clientes: List<Cliente>) : List<String> {
-        var lista = clientes.map { cliente ->
-            "ID: ${cliente.idCliente}\n" +
-            "RUT: ${cliente.rut}\n" +
-            "Razón social: ${cliente.razonSocial}\n" +
-            "Dirección: ${cliente.direccion}\n" +
-            "Comuna: ${cliente.comuna}\n" +
-            "Telefono: ${cliente.telefono}\n" +
-            "Día visita: ${cliente.diaVisita}\n"
-        }
-        return lista
+        val clientes = ClienteDao(this).obtenerTodos()
+        listView.adapter = ClienteAdaptador(this, clientes)
     }
 
 }

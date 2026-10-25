@@ -2,18 +2,20 @@ package com.example.rutapedidos
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.rutapedidos.DataAccessObjects.PedidoDao
-import com.example.rutapedidos.DataAccessObjects.ProductoDao
+import com.example.rutapedidos.DataAccessObjects.ClienteDao
+import com.example.rutapedidos.DataAccessObjects.UsuarioDao
 import com.example.rutapedidos.Interfaces.ListadosFragment
-import com.example.rutapedidos.Models.Pedido
-import com.example.rutapedidos.Models.Producto
+import com.example.rutapedidos.Models.PedidoListado
+import com.example.rutapedidos.Fragments.ListaFragment
+import com.example.rutapedidos.SyncServices.PedidoSyncService
 
 class Pedidos : AppCompatActivity() , ListadosFragment{
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +30,7 @@ class Pedidos : AppCompatActivity() , ListadosFragment{
 
         var btnVolver = findViewById<Button>(R.id.btnPedidosVolver)
         var btnCrear = findViewById<Button>(R.id.btnPedidosCrear)
+        val btnSincronizar = findViewById<Button>(R.id.btnPedidosSincronizar)
 
         val idUsuario = Sesion.idUsuarioLocal(this)
         if (idUsuario == null) {
@@ -46,34 +49,56 @@ class Pedidos : AppCompatActivity() , ListadosFragment{
             finish()
         }
 
+        btnSincronizar.setOnClickListener {
+            btnSincronizar.isEnabled = false
+            btnSincronizar.setText(R.string.pedidos_sincronizando)
+            PedidoSyncService(this).sincronizar(
+                onSuccess = { cantidad, pendientes ->
+                    if (!isFinishing && !isDestroyed) {
+                        btnSincronizar.isEnabled = true
+                        btnSincronizar.setText(R.string.pedidos_sincronizar)
+                        actualizarLista()
+                        Toast.makeText(this, getString(R.string.pedidos_sync_resultado, cantidad, pendientes), Toast.LENGTH_LONG).show()
+                    }
+                },
+                onError = { error ->
+                    if (!isFinishing && !isDestroyed) {
+                        btnSincronizar.isEnabled = true
+                        btnSincronizar.setText(R.string.pedidos_sincronizar)
+                        actualizarLista()
+                        Toast.makeText(this, getString(R.string.pedidos_sync_error, error.message), Toast.LENGTH_LONG).show()
+                    }
+                }
+            )
+        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        actualizarLista()
+    }
+
+    private fun actualizarLista() {
+        (supportFragmentManager.findFragmentById(R.id.fragPedidosLista) as? ListaFragment)?.actualizarLista()
     }
 
     override fun cargaDatos(listView: ListView) {
-        var pedidoDao = PedidoDao(this)
-        var listado = pedidoDao.obtenerTodos()
-        var listadoFormateado = formatearSalida(listado)
-
-        var arrayAdapter: ArrayAdapter<*>
-        arrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listadoFormateado)
-        listView.adapter = arrayAdapter
-    }
-
-    fun formatearSalida(pedidos: List<Pedido>) : List<String> {
-        var lista = pedidos.map { pedido ->
-            "ID Pedido: ${pedido.idPedido}\n" +
-                    "ID CLiente: ${pedido.idCliente}\n" +
-                    "ID Usuario: ${pedido.idUsuario}\n" +
-                    "Firebase UID: ${pedido.fireBaseUID}\n" +
-                    "Fecha Emision: ${pedido.fechaEmision}\n" +
-                    "Fecha Entrega: ${pedido.fechaEntrega}\n" +
-                    "Orden de Compra: ${pedido.ordenCompra}\n" +
-                    "Neto: ${pedido.neto}\n" +
-                    "Descuento: ${pedido.descuento}\n" +
-                    "Impuesto: ${pedido.impuesto}\n" +
-                    "Total: ${pedido.total}\n" +
-                    "Estado: ${pedido.estado}\n" +
-                    "Sincronizado: ${if (pedido.sincronizado) "Si" else "No"}\n"
+        val pedidos = PedidoDao(this).obtenerTodos()
+        val clientes = ClienteDao(this).obtenerTodos().associateBy { it.idCliente }
+        val usuarioDao = UsuarioDao(this)
+        val usuarios = pedidos.map { it.idUsuario }.distinct().associateWith {
+            usuarioDao.obtenerPorID(it)
         }
-        return lista
+        val listado = pedidos.map { pedido ->
+            PedidoListado(pedido, clientes[pedido.idCliente], usuarios[pedido.idUsuario]?.email)
+        }
+        listView.adapter = PedidoAdaptador(this, listado)
+        listView.setOnItemClickListener { parent, _, position, _ ->
+            val seleccionado = parent.getItemAtPosition(position) as PedidoListado
+            startActivity(Intent(this, PedidosMostrar::class.java).apply {
+                putExtra("idPedido", seleccionado.pedido.idPedido)
+            })
+        }
     }
 }

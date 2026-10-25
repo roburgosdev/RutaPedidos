@@ -106,7 +106,6 @@ class PedidosCrear : AppCompatActivity() {
                 descuento = 0,
                 impuesto = 0,
                 total = 0,
-                estado = "pendiente",
                 sincronizado = false
             )
 

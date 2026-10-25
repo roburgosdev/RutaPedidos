@@ -3,15 +3,48 @@ package com.example.rutapedidos.DataAccessObjects
 import android.content.ContentValues
 import android.content.Context
 import com.example.rutapedidos.Models.Pedido
-import com.example.rutapedidos.Models.Producto
-import com.example.rutapedidos.Models.Usuario
-import com.example.rutapedidos.Pedidos
+import com.example.rutapedidos.Models.PedidoSincronizacion
 import com.example.rutapedidos.SQL.miSQLiteHelper
 import java.time.LocalDate
 
 class PedidoDao(context: Context) {
 
     private val helper = miSQLiteHelper.obtener(context)
+    private val detalleDao = DetallePedidoDao(context.applicationContext)
+
+    fun obtenerPendientesParaSincronizar(uid: String): List<PedidoSincronizacion> {
+        val db = helper.writableDatabase
+        db.beginTransaction()
+        try {
+            val resultado = obtenerTodos().filter { !it.sincronizado && it.fireBaseUID == uid }.map {
+                PedidoSincronizacion(it, detalleDao.obtenerTodosPorId(it.idPedido).sortedBy { d -> d.idDetalle })
+            }
+            db.setTransactionSuccessful()
+            return resultado
+        } finally {
+            db.endTransaction()
+        }
+    }
+
+    // No marcar cambios locales que se hayan hecho mientras se estaba subiendo la copia.
+    fun marcarSincronizadoSiNoCambio(copia: PedidoSincronizacion): Boolean {
+        val db = helper.writableDatabase
+        db.beginTransaction()
+        try {
+            val actual = obtenerUno(copia.pedido.idPedido)
+            val detalles = detalleDao.obtenerTodosPorId(copia.pedido.idPedido).sortedBy { it.idDetalle }
+            val coincide = actual == copia.pedido && detalles == copia.detalles
+            if (coincide) {
+                val datos = ContentValues().apply { put("sincronizado", 1) }
+                check(db.update("pedido", datos, "id_pedido = ?",
+                    arrayOf(copia.pedido.idPedido.toString())) == 1)
+            }
+            db.setTransactionSuccessful()
+            return coincide
+        } finally {
+            db.endTransaction()
+        }
+    }
 
     fun guardarTodos(pedidos: List<Pedido>) {
         val db = helper.writableDatabase
@@ -31,7 +64,6 @@ class PedidoDao(context: Context) {
                     put("descuento", pedido.descuento)
                     put("impuesto", pedido.impuesto)
                     put("total", pedido.total)
-                    put("estado", pedido.estado)
                     put("sincronizado", if (pedido.sincronizado) 1 else 0)
                 }
 
@@ -67,7 +99,6 @@ class PedidoDao(context: Context) {
                         descuento = fila.getString(fila.getColumnIndexOrThrow("descuento")).toInt(),
                         impuesto = fila.getString(fila.getColumnIndexOrThrow("impuesto")).toInt(),
                         total = fila.getString(fila.getColumnIndexOrThrow("total")).toInt(),
-                        estado = fila.getString(fila.getColumnIndexOrThrow("estado")),
                         sincronizado = fila.getInt(fila.getColumnIndexOrThrow("sincronizado")) == 1
                     )
                 )
@@ -91,10 +122,35 @@ class PedidoDao(context: Context) {
         datos.put("descuento", pedido.descuento)
         datos.put("impuesto", pedido.impuesto)
         datos.put("total", pedido.total)
-        datos.put("estado", pedido.estado)
         datos.put("sincronizado", if (pedido.sincronizado) 1 else 0)
 
         return db.insertOrThrow("pedido", null, datos)
+    }
+
+    fun actualizarEntregaYOrdenCompra(idPedido: Int, fechaEntrega: LocalDate, ordenCompra: String) {
+        val datos = ContentValues().apply {
+            put("fecha_entrega", fechaEntrega.toString())
+            put("orden_compra", ordenCompra.trim())
+            put("sincronizado", 0)
+        }
+        check(helper.writableDatabase.update(
+            "pedido", datos, "id_pedido = ?", arrayOf(idPedido.toString())
+        ) == 1) { "Pedido no encontrado" }
+    }
+
+    fun eliminarConDetalles(idPedido: Int) {
+        val db = helper.writableDatabase
+        db.beginTransaction()
+        try {
+            val argumentos = arrayOf(idPedido.toString())
+            db.delete("detalle_pedido", "id_pedido = ?", argumentos)
+            check(db.delete("pedido", "id_pedido = ?", argumentos) == 1) {
+                "Pedido no encontrado"
+            }
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
     }
 
     fun obtenerUno(idPedido: Int): Pedido? {
@@ -114,7 +170,6 @@ class PedidoDao(context: Context) {
                 descuento = c.getString(c.getColumnIndexOrThrow("descuento")).toInt(),
                 impuesto = c.getString(c.getColumnIndexOrThrow("impuesto")).toInt(),
                 total = c.getString(c.getColumnIndexOrThrow("total")).toInt(),
-                estado = c.getString(c.getColumnIndexOrThrow("estado")),
                 sincronizado = c.getInt(c.getColumnIndexOrThrow("sincronizado")) == 1
             )
         }

@@ -14,6 +14,5 @@ data class Pedido(
     var descuento: Int,
     var impuesto: Int,
     var total: Int,
-    var estado: String,
     var sincronizado: Boolean
 )
